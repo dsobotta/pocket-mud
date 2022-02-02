@@ -77,7 +77,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     Text::new("                #      |............|", pos, white).draw(&mut display)?; pos.y += y_inc;
     let at = Text::new("                #      |..", pos, white).draw(&mut display)?;
     let at = Text::new("@", at, col_mp).draw(&mut display)?;
-    Text::new(".........|", at, white).draw(&mut display)?; pos.y += y_inc;
+    Text::new("g........|", at, white).draw(&mut display)?; pos.y += y_inc;
     Text::new("     /--\\       #      |............|", pos, white).draw(&mut display)?; pos.y += y_inc;
     Text::new("     |..|       #######+..D.../-----/", pos, white).draw(&mut display)?; pos.y += y_inc;
     Text::new("     |<.+###    #      |...../", pos, white).draw(&mut display)?; pos.y += y_inc;

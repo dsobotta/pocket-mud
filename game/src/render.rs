@@ -3,7 +3,7 @@ use crate::tile::TileType;
 
 use embedded_graphics::{
     mono_font::{
-        ascii::FONT_6X13,
+        ascii::FONT_5X7,
         MonoTextStyleBuilder,
     },
     pixelcolor::Rgb565,
@@ -22,8 +22,8 @@ const SIMULATOR_RENDER_SCALE: u32 = 2;
 const DISPLAY_WIDTH: u32 = 240;
 const DISPLAY_HEIGHT: u32 = 240;
 
-const VIEWPORT_WIDTH: usize = 30;
-const VIEWPORT_HEIGHT: usize = 30;
+const VIEWPORT_WIDTH: usize = 40;
+const VIEWPORT_HEIGHT: usize = 40;
 
 pub struct Renderer {
     display: SimulatorDisplay<Rgb565>,
@@ -44,12 +44,12 @@ impl Renderer {
     pub fn render(&mut self, worldcell: &WorldCell) -> Result<(), core::convert::Infallible> {
 
         let white = MonoTextStyleBuilder::new()
-        .font(&FONT_6X13)
-        .text_color(Rgb565::WHITE)
+        .font(&FONT_5X7)
+        .text_color(Rgb565::new(25, 50, 25))
         .build();
 
-        let y_inc: i32 = 12;
-        let start_pos = Point::new(1, 9);
+        let y_inc: i32 = 6;
+        let start_pos = Point::new(1, 4);
         let mut pos = start_pos;
 
         for y in 0..VIEWPORT_HEIGHT {

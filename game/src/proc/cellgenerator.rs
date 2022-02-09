@@ -7,11 +7,26 @@ use crate::worldcell::{
 };
 use rand::rngs::StdRng;
 
-pub struct CellGenerator;
+pub struct CellGenerator {
+    low_spawn: u8,
+    high_spawn: u8,
+    low_keep: u8,
+    high_keep: u8,
+}
 
 impl CellGenerator {
+
     pub fn new() -> CellGenerator {
-        CellGenerator
+        CellGenerator::new_with_thresholds(0, 0, 4, 6)
+    }
+
+    pub fn new_with_thresholds(spawn_low: u8, spawn_high: u8, keep_low: u8, keep_high: u8) -> CellGenerator {
+        CellGenerator {
+            low_spawn: spawn_low,
+            high_spawn: spawn_high,
+            low_keep: keep_low,
+            high_keep: keep_high,
+        }
     }
 }
 
@@ -28,19 +43,23 @@ impl Generator for CellGenerator {
         for y in beg_y..end_y {
             for x in beg_x..end_x {
 
-                let mut neighbors = 0;
-                if TileType::GenWall == in_world.tiles[x-1][y-1] { neighbors += 1; }
-                if TileType::GenWall == in_world.tiles[x][y-1] { neighbors += 1; }
-                if TileType::GenWall == in_world.tiles[x+1][y-1] { neighbors += 1; }
+                let mut count = 0;
+                if TileType::GenWall == in_world.tiles[x-1][y-1] { count += 1; }
+                if TileType::GenWall == in_world.tiles[x][y-1] { count += 1; }
+                if TileType::GenWall == in_world.tiles[x+1][y-1] { count += 1; }
                 
-                if TileType::GenWall == in_world.tiles[x-1][y] { neighbors += 1; }
-                if TileType::GenWall == in_world.tiles[x+1][y] { neighbors += 1; }
+                if TileType::GenWall == in_world.tiles[x-1][y] { count += 1; }
+                if TileType::GenWall == in_world.tiles[x+1][y] { count += 1; }
 
-                if TileType::GenWall == in_world.tiles[x-1][y+1] { neighbors += 1; }
-                if TileType::GenWall == in_world.tiles[x][y+1] { neighbors += 1; }
-                if TileType::GenWall == in_world.tiles[x+1][y+1] { neighbors += 1; }
+                if TileType::GenWall == in_world.tiles[x-1][y+1] { count += 1; }
+                if TileType::GenWall == in_world.tiles[x][y+1] { count += 1; }
+                if TileType::GenWall == in_world.tiles[x+1][y+1] { count += 1; }
 
-                if 0 == neighbors || 4 < neighbors {
+                let exists = (TileType::GenWall == in_world.tiles[x][y]);
+                let should_spawn = (self.low_spawn <= count && count <= self.high_spawn);
+                let should_keep = (self.low_keep <= count && count <= self.high_keep);
+
+                if (!exists && should_spawn) || (exists && should_keep) {
                     out_world.tiles[x][y] = TileType::GenWall;
                 } else {
                     out_world.tiles[x][y] = TileType::GenFloor;

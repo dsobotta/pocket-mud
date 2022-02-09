@@ -23,7 +23,7 @@ impl NoiseGenerator {
 impl Generator for NoiseGenerator {
     fn generate(&self, rand: &mut StdRng, in_world: &WorldCell, out_world: &mut WorldCell, region: &Region) {
         out_world.validate_region(region);
-        *out_world = *in_world;
+        out_world.clone_from(in_world);
 
         let beg_x = region.x;
         let beg_y = region.y;

@@ -48,6 +48,8 @@ impl Renderer {
         .text_color(Rgb565::new(25, 50, 25))
         .build();
 
+        self.display.clear(Rgb565::BLACK)?;
+
         let y_inc: i32 = 6;
         let start_pos = Point::new(1, 4);
         let mut pos = start_pos;
@@ -63,7 +65,9 @@ impl Renderer {
             pos.y += y_inc;
         }
 
-        self.window.show_static(&self.display);
+        //self.window.show_static(&self.display);
+        
+        self.window.update(&self.display);
 
         Ok(())
     }

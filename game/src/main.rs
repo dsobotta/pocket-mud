@@ -10,7 +10,8 @@ use render::Renderer;
 
 use proc::noise::NoiseGenerator;
 use proc::generator::Generator;
-use proc::cellgenerator::CellGenerator;
+use proc::cell::CellGenerator;
+use proc::concrete::ConcreteGenerator;
 
 use rand::{rngs::StdRng, SeedableRng};
 
@@ -47,7 +48,7 @@ fn main() {
 
 
     //score: 10 - cave - dense, rooms, tunnels
-    //let cell_gen = CellGenerator::new_with_thresholds( 1, 2, 6, 7);
+    // let cell_gen = CellGenerator::new_with_thresholds( 1, 2, 6, 7);
 
     //score: 8 - forest - dense, uniform
     // let cell_gen = CellGenerator::new_with_thresholds( 0, 0, 0, 3);
@@ -56,48 +57,43 @@ fn main() {
     // let cell_gen = CellGenerator::new_with_thresholds( 1, 2, 1, 2);
 
     //score: 10 - cave/canyon, clean paths, always connects 2 or more quadrants
-    let cell_gen = CellGenerator::new_with_thresholds( 1, 4, 1, 2);
+    // let cell_gen = CellGenerator::new_with_thresholds( 1, 4, 1, 2);
 
     //score: 10 - forest, mixed, clearings, clusters
-    // let cell_gen = CellGenerator::new_with_thresholds( 0, 1, 3, 4);
+    let cell_gen = CellGenerator::new_with_thresholds( 0, 1, 3, 4);
+
+
+    let concrete_gen = ConcreteGenerator::new();
 
 
     let mut world_a = WorldCell::new();
     let mut world_b = WorldCell::new();
 
+    let curr_world = &mut world_a;
+    let mut next_world = &mut world_b;
+
+
     let region = Region{x:0, y:0, width:worldcell::MAX_WIDTH-1, height:worldcell::MAX_HEIGHT-1};
-    noise_gen.generate(&mut rand, &world_a, &mut world_b, &region);
+    noise_gen.generate(&mut rand, curr_world, &mut next_world, &region);
+    core::mem::swap(curr_world, next_world);
 
 
     let region = Region{x:1, y:1, width:worldcell::MAX_WIDTH-3, height:worldcell::MAX_HEIGHT-3};
-
     let mut renderer = Renderer::new();
 
-    let mut cycle_a = false;
-    let bootstrap_generations = 15;
-
-    //GENERATE
-    for _i in 0..bootstrap_generations {
-
-        cycle_a = !cycle_a;
-
-        if cycle_a {
-            cell_gen.generate(&mut rand, &world_b, &mut world_a, &region);
-        } else {
-            cell_gen.generate(&mut rand, &world_a, &mut world_b, &region);
-        }
+    //BOOTSTRAP + GENERATE
+    for _i in 0..15 {
+        cell_gen.generate(&mut rand, curr_world, &mut next_world, &region);
+        core::mem::swap(curr_world, next_world);
     }
 
-    
-    let render_world = if cycle_a {
-        &world_a
-    } else {
-        &world_b
-    };
+    concrete_gen.generate(&mut rand, curr_world, &mut next_world, &region);
+    core::mem::swap(curr_world, next_world);
 
+ 
     let mut player_pos_x = 14;
-    let player_pos_y = 0;
-    let ticks_between_renders = 1000;
+    let mut player_pos_y = 0;
+    let ticks_between_renders = 250;
     let mut curr_ticks = 0;
     loop {
         curr_ticks += 1;
@@ -112,7 +108,8 @@ fn main() {
 
         curr_ticks = 0;
         player_pos_x += 1;
+        player_pos_y += 1;
         renderer.set_focus(player_pos_x, player_pos_y);
-        let _result = renderer.render(&render_world);
+        let _result = renderer.render(curr_world);
     }
 }

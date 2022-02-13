@@ -6,7 +6,6 @@ use crate::worldcell::{
     WorldCell
 };
 use rand::rngs::StdRng;
-
 pub struct CellGenerator {
     low_spawn: u8,
     high_spawn: u8,

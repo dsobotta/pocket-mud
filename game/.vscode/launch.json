@@ -25,13 +25,13 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'game'",
+            "name": "Release executable 'game'",
             "cargo": {
                 "args": [
-                    "test",
-                    "--no-run",
+                    "build",
                     "--bin=game",
-                    "--package=game"
+                    "--package=game",
+                    "--release"
                 ],
                 "filter": {
                     "name": "game",
@@ -40,6 +40,7 @@
             },
             "args": [],
             "cwd": "${workspaceFolder}"
-        }
+        },
+
     ]
 }

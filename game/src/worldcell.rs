@@ -1,28 +1,29 @@
 use crate::tile::TileType;
 
-const MAX_WIDTH: usize = 256;
-const MAX_HEIGHT: usize = 128;
-const MIN_ROOMS: u16 = 4;
-const MAX_ROOMS: u16 = 10;
+pub const MAX_WIDTH: u16 = 240;
+pub const MAX_HEIGHT: u16 = 240;
+const TILE_ARRAY_SIZE: u16 = (MAX_WIDTH+2)*(MAX_HEIGHT+2);
 
 #[derive(Copy, Clone)]
 pub struct Region {
-    pub x: usize,
-    pub y: usize,
-    pub width: usize,
-    pub height: usize,
+    pub x: u16,
+    pub y: u16,
+    pub width: u16,
+    pub height: u16,
 }
+
 
 
 #[derive(Copy, Clone)]
 pub struct WorldCell {
-    pub tiles: [[TileType; MAX_HEIGHT]; MAX_WIDTH],
+    tiles: [TileType; TILE_ARRAY_SIZE as usize],
 }
 
+#[allow(dead_code)]
 impl WorldCell {
 
     pub fn new() -> WorldCell {
-        WorldCell { tiles: [[TileType::GenWall; MAX_HEIGHT]; MAX_WIDTH] }
+        WorldCell { tiles: [TileType::GenWall; TILE_ARRAY_SIZE as usize], }
     }
 
     pub fn validate_region(&self, region: &Region) {
@@ -31,6 +32,16 @@ impl WorldCell {
     }
 
     pub fn clear(&mut self) {
-        self.tiles = [[TileType::GenWall; MAX_HEIGHT]; MAX_WIDTH];
+        self.tiles = [TileType::GenWall; TILE_ARRAY_SIZE as usize];
+    }
+
+    pub fn read(&self, x: u16, y: u16) -> TileType {
+        let idx = (MAX_WIDTH+2)*y + x;
+        return self.tiles[idx as usize];
+    }
+
+    pub fn write(&mut self, x: u16, y:u16, value: TileType) {
+        let idx = (MAX_WIDTH+2)*y + x;
+        self.tiles[idx as usize] = value;
     }
 }

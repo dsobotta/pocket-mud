@@ -16,9 +16,9 @@ pub struct CellGenerator {
 
 impl CellGenerator {
 
-    pub fn new() -> CellGenerator {
-        CellGenerator::new_with_thresholds(0, 0, 4, 6)
-    }
+    // pub fn new() -> CellGenerator {
+    //     CellGenerator::new_with_thresholds(0, 0, 4, 6)
+    // }
 
     pub fn new_with_thresholds(spawn_low: u8, spawn_high: u8, keep_low: u8, keep_high: u8) -> CellGenerator {
         CellGenerator {
@@ -32,37 +32,39 @@ impl CellGenerator {
 
 impl Generator for CellGenerator {
 
-    fn generate(&self, rand: &mut StdRng, in_world: &WorldCell, out_world: &mut WorldCell, region: &Region)  {
+    fn generate(&self, _rand: &mut StdRng, in_world: &WorldCell, out_world: &mut WorldCell, region: &Region)  {
         out_world.validate_region(region);
         *out_world = *in_world;
 
-        let beg_x = region.x + 1;
-        let beg_y = region.y + 1;
-        let end_x = beg_x + region.width - 2;
-        let end_y = beg_y + region.height - 2;
+        let beg_x = region.x;
+        let beg_y = region.y;
+        let end_x = beg_x + region.width;
+        let end_y = beg_y + region.height;
+
         for y in beg_y..end_y {
             for x in beg_x..end_x {
 
-                let mut count = 0;
-                if TileType::GenWall == in_world.tiles[x-1][y-1] { count += 1; }
-                if TileType::GenWall == in_world.tiles[x][y-1] { count += 1; }
-                if TileType::GenWall == in_world.tiles[x+1][y-1] { count += 1; }
-                
-                if TileType::GenWall == in_world.tiles[x-1][y] { count += 1; }
-                if TileType::GenWall == in_world.tiles[x+1][y] { count += 1; }
+                let count =
+                    in_world.read(x-1, y-1) as u8 +
+                    in_world.read(x, y-1) as u8 +
+                    in_world.read(x+1, y-1) as u8 +
 
-                if TileType::GenWall == in_world.tiles[x-1][y+1] { count += 1; }
-                if TileType::GenWall == in_world.tiles[x][y+1] { count += 1; }
-                if TileType::GenWall == in_world.tiles[x+1][y+1] { count += 1; }
+                    in_world.read(x-1, y) as u8 +
+                    in_world.read(x+1, y) as u8 +
 
-                let exists = (TileType::GenWall == in_world.tiles[x][y]);
-                let should_spawn = (self.low_spawn <= count && count <= self.high_spawn);
-                let should_keep = (self.low_keep <= count && count <= self.high_keep);
+                    in_world.read(x-1, y+1) as u8 +
+                    in_world.read(x, y+1) as u8 +
+                    in_world.read(x+1, y+1) as u8
+                ;
+
+                let exists = TileType::GenWall == in_world.read(x, y);
+                let should_spawn = self.low_spawn <= count && count <= self.high_spawn;
+                let should_keep = self.low_keep <= count && count <= self.high_keep;
 
                 if (!exists && should_spawn) || (exists && should_keep) {
-                    out_world.tiles[x][y] = TileType::GenWall;
+                    out_world.write(x, y, TileType::GenWall);
                 } else {
-                    out_world.tiles[x][y] = TileType::GenFloor;
+                    out_world.write(x, y, TileType::GenFloor);
                 }
             }
         }

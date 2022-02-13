@@ -33,9 +33,9 @@ impl Generator for NoiseGenerator {
             for x in beg_x..end_x {
                 let val: f32 = rand.gen_range(0.0, 1.0);
                 if val < self.density {
-                    out_world.tiles[x][y] = TileType::GenWall;
+                    out_world.write(x,y, TileType::GenWall);
                 } else {
-                    out_world.tiles[x][y] = TileType::GenFloor;
+                    out_world.write(x,y, TileType::GenFloor);
                 }
             }
         }
